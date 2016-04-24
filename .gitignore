@@ -1,0 +1,9 @@
+/build/
+*.o
+*.so
+/core/core
+moc_*
+Makefile
+*.pro.user
+*.autosave
+

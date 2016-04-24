@@ -1,0 +1,11 @@
+{
+    "name": "Twitch",
+    "author": "Mackenzie Straight <eizneckam@gmail.com>",
+    "repo": "https://github.com/eiz/ks-twitch-player",
+    "namespace": "org.e7m.kappa.twitch",
+    "version": "1.0",
+    "ui": {
+        "sidebar": "Menu",
+        "home": "Home"
+    }
+}

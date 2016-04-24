@@ -1,0 +1,5 @@
+module org.e7m.kappa.twitch
+plugin org-e7m-kappa-twitch
+Home 1.0 Home.qml
+Menu 1.0 Menu.qml
+
