@@ -14,15 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with ks-twitch-player.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "plugin.h"
-#include "twitchapiclient.h"
+#ifndef TWITCHAPICLIENT_H
+#define TWITCHAPICLIENT_H
 
-#include <qqml.h>
+#include <QJSValue>
+#include <QNetworkReply>
+#include <QObject>
 
-void Plugin::registerTypes(const char *uri)
+class TwitchApiClient : public QObject
 {
-    qmlRegisterType<TwitchApiClient>(
-        "org.e7m.kappa.twitch", 1, 0, "TwitchApiClient");
-}
+    Q_OBJECT
 
+public:
+    explicit TwitchApiClient(QObject *parent = 0);
 
+    Q_INVOKABLE void getFollowing(QJSValue cb);
+    Q_INVOKABLE void getStreams(QJSValue cb);
+    Q_INVOKABLE void getGames(QJSValue cb);
+
+public slots:
+    void onStreamsResult(QNetworkReply *reply);
+
+private:
+    QJSValue _followingCb;
+    QJSValue _streamsCb;
+    QJSValue _gamesCb;
+};
+
+#endif // TWITCHAPICLIENT_H

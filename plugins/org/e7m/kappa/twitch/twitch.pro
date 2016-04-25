@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = org-e7m-kappa-twitch
 QT += qml quick
-CONFIG += qt plugin marvell debug
+CONFIG += qt plugin marvell debug c++11
 
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 QMAKE_LFLAGS += '-Wl,-rpath,\'/home/steam/lib\''
@@ -11,16 +11,20 @@ uri = org.e7m.kappa.twitch
 
 # Input
 SOURCES += \
-    plugin.cpp
+    plugin.cpp \
+    twitchapiclient.cpp
 
 HEADERS += \
-    plugin.h
+    plugin.h \
+    twitchapiclient.h
 
 OTHER_FILES = qmldir \
     plugin.json \
     Menu.qml \
     Home.qml \
     kappa.json
+
+LIBS += -lssl -lcrypto
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
     copy_qmldir.target = $$OUT_PWD/qmldir
