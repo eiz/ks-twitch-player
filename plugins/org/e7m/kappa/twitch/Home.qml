@@ -26,14 +26,16 @@ SLListView {
     anchors.fill: parent
     delegate: SLRoundedPanel {
         id: wrapper
-        width: 200
+        anchors.left: parent.left
+        anchors.right: parent.right
         height: 30
         highlight: activeFocus
 
         Text {
             property var stream: list.model[index]
             anchors.fill: parent
-            text: stream.channel.display_name + ": " + stream.game
+            text: stream.channel.display_name + ": " + stream.game + " (" +
+                  stream.viewers + " viewers)"
             color: "white"
         }
     }
