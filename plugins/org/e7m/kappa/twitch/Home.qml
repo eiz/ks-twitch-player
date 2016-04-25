@@ -39,7 +39,6 @@ SLListView {
     }
 
     Component.onCompleted: {
-        console.log("fml1");
         twitch.getStreams(function (result) {
             if (result.error) {
                 console.log("error", result.error);
