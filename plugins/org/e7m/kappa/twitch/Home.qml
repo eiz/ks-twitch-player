@@ -21,7 +21,6 @@ import org.e7m.kappa.core.ui 1.0
 SLListView {
     id: list
     focus: true
-    highlight: activeFocus
     TwitchApiClient { id: twitch }
     anchors.fill: parent
     delegate: SLRoundedPanel {
@@ -41,7 +40,7 @@ SLListView {
     }
 
     Component.onCompleted: {
-        twitch.getStreams(function (result) {
+        twitch.getStreams({limit: 100}, function (result) {
             if (result.error) {
                 console.log("error", result.error);
             } else {

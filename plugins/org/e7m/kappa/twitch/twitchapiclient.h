@@ -28,17 +28,14 @@ class TwitchApiClient : public QObject
 public:
     explicit TwitchApiClient(QObject *parent = 0);
 
-    Q_INVOKABLE void getFollowing(QJSValue cb);
-    Q_INVOKABLE void getStreams(QJSValue cb);
-    Q_INVOKABLE void getGames(QJSValue cb);
-
-public slots:
-    void onStreamsResult(QNetworkReply *reply);
+    Q_INVOKABLE void getFollowing(QJSValue opts, QJSValue cb);
+    Q_INVOKABLE void getStreams(QJSValue opts, QJSValue cb);
+    Q_INVOKABLE void getGames(QJSValue opts, QJSValue cb);
 
 private:
-    QJSValue _followingCb;
-    QJSValue _streamsCb;
-    QJSValue _gamesCb;
+    QNetworkRequest apiRequest(QJSValue opts, QString resource);
+    QNetworkAccessManager *_network;
+    QSslConfiguration _ssl;
 };
 
 #endif // TWITCHAPICLIENT_H

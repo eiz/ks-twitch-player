@@ -17,46 +17,54 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJSEngine>
+#include <QJSValueIterator>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include "twitchapiclient.h"
 
 TwitchApiClient::TwitchApiClient(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    _network(new QNetworkAccessManager(this)),
+    _ssl(QSslConfiguration::defaultConfiguration())
 {
+    _ssl.setPeerVerifyMode(QSslSocket::VerifyNone);
 }
 
-void TwitchApiClient::getFollowing(QJSValue cb)
+static QString apiUrl(QString resource)
 {
-
+    return QString("https://api.twitch.tv/kraken/") + resource;
 }
 
-void TwitchApiClient::getStreams(QJSValue cb)
+static QString optionsToQuery(QJSValue opts)
 {
-    if (!_streamsCb.isUndefined()) {
-        // TODO
-        return;
+    QString result;
+    bool first = true;
+
+    if (!opts.isObject()) {
+        return result;
     }
 
-    _streamsCb = cb;
+    QJSValueIterator it(opts);
 
-    QSslConfiguration ssl = QSslConfiguration::defaultConfiguration();
-    QNetworkAccessManager *mgr = new QNetworkAccessManager();
-    QUrl url("https://api.twitch.tv/kraken/streams");
-    QNetworkRequest req;
+    while (it.hasNext()) {
+        if (!first) {
+            result.append("&");
+        } else {
+            first = false;
+        }
 
-    ssl.setPeerVerifyMode(QSslSocket::VerifyNone);
-    req.setSslConfiguration(ssl);
-    req.setUrl(url);
-    mgr->get(req);
-    connect(
-        mgr, SIGNAL(finished(QNetworkReply*)),
-        this, SLOT(onStreamsResult(QNetworkReply*)));
+        it.next();
+        result.append(QUrl::toPercentEncoding(it.name()));
+        result.append("=");
+        result.append(QUrl::toPercentEncoding(it.value().toString()));
+    }
+
+    return result;
 }
 
-void TwitchApiClient::onStreamsResult(QNetworkReply *reply)
+static void apiCallback(QJSValue cb, QNetworkReply *reply)
 {
-    QJSValue val = _streamsCb.engine()->newObject();
+    QJSValue val = cb.engine()->newObject();
 
     if (reply->error() != QNetworkReply::NoError) {
         val.setProperty("error", reply->errorString());
@@ -65,15 +73,47 @@ void TwitchApiClient::onStreamsResult(QNetworkReply *reply)
         QJsonDocument doc = QJsonDocument::fromJson(arr);
 
         val.setProperty(
-            "data", _streamsCb.engine()->toScriptValue(doc.object()));
+            "data", cb.engine()->toScriptValue(doc.object()));
     }
 
-    QJSValue cb = _streamsCb;
-    _streamsCb = QJSValue();
+    reply->deleteLater();
     cb.call(QJSValueList {val});
 }
 
-void TwitchApiClient::getGames(QJSValue cb)
+QNetworkRequest TwitchApiClient::apiRequest(QJSValue opts, QString resource)
 {
+    QUrl url(apiUrl(resource));
+    QNetworkRequest req;
 
+    url.setQuery(optionsToQuery(opts));
+    req.setSslConfiguration(_ssl);
+    req.setUrl(url);
+    return req;
+}
+
+void TwitchApiClient::getFollowing(QJSValue opts, QJSValue cb)
+{
+    QNetworkReply *reply = _network->get(apiRequest(opts, "following"));
+
+    connect(reply, &QNetworkReply::finished, [cb, reply]() {
+        apiCallback(cb, reply);
+    });
+}
+
+void TwitchApiClient::getStreams(QJSValue opts, QJSValue cb)
+{
+    QNetworkReply *reply = _network->get(apiRequest(opts, "streams"));
+
+    connect(reply, &QNetworkReply::finished, [cb, reply]() {
+        apiCallback(cb, reply);
+    });
+}
+
+void TwitchApiClient::getGames(QJSValue opts, QJSValue cb)
+{
+    QNetworkReply *reply = _network->get(apiRequest(opts, "games"));
+
+    connect(reply, &QNetworkReply::finished, [cb, reply]() {
+        apiCallback(cb, reply);
+    });
 }
