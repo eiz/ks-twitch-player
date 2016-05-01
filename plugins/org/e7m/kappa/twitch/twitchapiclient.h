@@ -24,16 +24,21 @@
 class TwitchApiClient : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString clientId READ clientId WRITE setClientId)
 
 public:
     explicit TwitchApiClient(QObject *parent = 0);
 
+    QString clientId() { return _clientId; }
+    void setClientId(QString value) { _clientId = value; }
     Q_INVOKABLE void getFollowing(QJSValue opts, QJSValue cb);
     Q_INVOKABLE void getStreams(QJSValue opts, QJSValue cb);
     Q_INVOKABLE void getGames(QJSValue opts, QJSValue cb);
 
 private:
     QNetworkRequest apiRequest(QJSValue opts, QString resource);
+
+    QString _clientId;
     QNetworkAccessManager *_network;
     QSslConfiguration _ssl;
 };

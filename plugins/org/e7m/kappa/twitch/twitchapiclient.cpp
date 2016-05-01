@@ -88,6 +88,11 @@ QNetworkRequest TwitchApiClient::apiRequest(QJSValue opts, QString resource)
     url.setQuery(optionsToQuery(opts));
     req.setSslConfiguration(_ssl);
     req.setUrl(url);
+
+    if (_clientId.length() > 0) {
+        req.setRawHeader("Client-ID", _clientId.toUtf8());
+    }
+
     return req;
 }
 

@@ -21,7 +21,10 @@ import org.e7m.kappa.core.ui 1.0
 SLListView {
     id: list
     focus: true
-    TwitchApiClient { id: twitch }
+    TwitchApiClient {
+        id: twitch
+        clientId: "40hx9adcjrbka93knh3uy93invyebr3"
+    }
     anchors.fill: parent
 
     model: ListModel {
