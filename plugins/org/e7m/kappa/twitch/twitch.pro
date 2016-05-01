@@ -22,7 +22,8 @@ OTHER_FILES = qmldir \
     plugin.json \
     Menu.qml \
     Home.qml \
-    kappa.json
+    kappa.json \
+    listloader.js
 
 LIBS += -lssl -lcrypto
 

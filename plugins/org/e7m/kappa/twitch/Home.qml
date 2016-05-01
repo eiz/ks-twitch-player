@@ -23,6 +23,11 @@ SLListView {
     focus: true
     TwitchApiClient { id: twitch }
     anchors.fill: parent
+
+    model: ListModel {
+        id: listModel
+    }
+
     delegate: SLRoundedPanel {
         id: wrapper
         anchors.left: parent.left
@@ -31,12 +36,15 @@ SLListView {
         highlight: activeFocus
 
         Text {
-            property var stream: list.model[index]
             anchors.fill: parent
-            text: stream.channel.display_name + ": " + stream.game + " (" +
-                  stream.viewers + " viewers)"
+            text: displayName + ": " + game + " (" + viewers + " viewers)"
             color: "white"
         }
+    }
+
+    WorkerScript {
+        id: worker
+        source: "listloader.js"
     }
 
     Component.onCompleted: {
@@ -44,7 +52,11 @@ SLListView {
             if (result.error) {
                 console.log("error", result.error);
             } else {
-                list.model = result.data.streams;
+                worker.sendMessage({
+                    model: listModel,
+                    data: result.data.streams,
+                    type: "streams"
+                });
             }
         });
     }
